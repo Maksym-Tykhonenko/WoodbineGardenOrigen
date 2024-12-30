@@ -238,27 +238,44 @@ const App = () => {
         fetchOneSignalId();
     }, []);
 
-    let notificationEventListenerAdded = false;
+    // event push_open_browser & push_open_webview
+    const pushOpenWebViewOnce = useRef(false); // Стан, щоб уникнути дублювання
 
-    if (!notificationEventListenerAdded) {
-        OneSignal.Notifications.addEventListener('click', event => {
-            if (event.notification.launchURL) {
-                fetch(
-                    `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`,
-                );
-                console.log('Івент push_open_browser OneSignal');
-            } else {
-                fetch(
-                    `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`,
-                );
-                setAddPartToLinkOnce(false);
-                console.log('Івент push_open_webview OneSignal');
-            }
-        });
+useEffect(() => {
+  // Додаємо слухач подій
+  const handleNotificationClick = event => {
+    if (pushOpenWebViewOnce.current) {
+      // Уникаємо повторної відправки івента
+      return;
+    }
 
-        notificationEventListenerAdded = true;
-    };
+    if (event.notification.launchURL) {
+      fetch(
+        `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_open_browser&jthrhg=${timestamp_user_id}`,
+      );
+      console.log('Івент push_open_browser OneSignal');
+    } else {
+      fetch(
+        `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=push_open_webview&jthrhg=${timestamp_user_id}`,
+      );
+      console.log('Івент push_open_webview OneSignal');
+    }
 
+    pushOpenWebViewOnce.current = true; // Блокування повторного виконання
+    setTimeout(() => {
+      pushOpenWebViewOnce.current = false; // Зняття блокування через певний час
+    }, 2500); // Затримка, щоб уникнути подвійного кліку
+  };
+
+  OneSignal.Notifications.addEventListener('click', handleNotificationClick);
+
+  return () => {
+    // Видаляємо слухача подій при розмонтуванні
+    OneSignal.Notifications.removeEventListener('click', handleNotificationClick);
+  };
+}, []);
+
+    // 1ST FUNCTION - Повторна Ініціалізація AppsFlyer
     const performAppsFlyerOperationsContinuously = async () => {
         try {
             // 1. Ініціалізація SDK
