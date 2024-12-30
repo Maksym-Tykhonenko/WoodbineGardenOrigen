@@ -443,16 +443,16 @@ const App = () => {
                 <Stack.Navigator>
                     <Stack.Screen
                         initialParams={{
-                            //addPartToLinkOnce,
-                            //responseToPushPermition, //в вебВью якщо тру то відправити івент push_subscribe
-                            //oneSignalId, //додати до фінальної лінки
-                            //idfa: idfa,
-                            //sab1: sab1,
-                            //pid: pid,
-                            //uid: appsUid,
-                            //customerUserId: customerUserId,
-                            //idfv: idfv,
-                            //adAtribution: adServicesAtribution,
+                            addPartToLinkOnce,
+                            responseToPushPermition, //в вебВью якщо тру то відправити івент push_subscribe
+                            oneSignalId, //додати до фінальної лінки
+                            idfa: idfa,
+                            sab1: sab1,
+                            pid: pid,
+                            uid: appsUid,
+                            customerUserId: customerUserId,
+                            idfv: idfv,
+                            adAtribution: adServicesAtribution,
                         }}
                         name="WoodbineGardenOrigenProdactScreen"
                         component={WoodbineGardenOrigenProdactScreen}

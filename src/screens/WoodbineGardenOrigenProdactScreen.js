@@ -101,11 +101,16 @@ const WoodbineGardenOrigenProdactScreen = ({navigation, route}) => {
   }, []);
 
   //**івент webview_open
+  const hasWebViewOpenEventSent = useRef(false); // Використовуємо useRef для збереження стану між рендерами
+
   useEffect(() => {
-    fetch(
-      `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timestamp_user_id}`,
-    );
-    //console.log('івент webview_open !!!');
+    if (!hasWebViewOpenEventSent.current) {
+      hasWebViewOpenEventSent.current = true; // Встановлюємо, що івент вже відправлений
+      fetch(
+        `${INITIAL_URL}${URL_IDENTIFAIRE}?utretg=webview_open&jthrhg=${timestamp_user_id}`,
+      );
+      console.log('Івент webview_open відправлено!');
+    }
   }, []);
   {
     /** 
@@ -200,7 +205,7 @@ const WoodbineGardenOrigenProdactScreen = ({navigation, route}) => {
     (pid ? `&pid=${pid}` : '') +
     (!addPartToLinkOnce ? `&yhugh=true` : '');
 
-  //console.log('My product Url==>', product);
+  console.log('My product Url==>', product);
   //Alert.alert(product);
 
   //const customUserAgent = `Mozilla/5.0 (${deviceInfo.deviceSystemName}; ${deviceInfo.deviceModel}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1`;
@@ -271,7 +276,7 @@ const WoodbineGardenOrigenProdactScreen = ({navigation, route}) => {
 
   const onShouldStartLoadWithRequest = event => {
     const {url} = event;
-    console.log('onShouldStartLoadWithRequest========> ', event);
+    //console.log('onShouldStartLoadWithRequest========> ', event);
 
     if (url.startsWith('mailto:')) {
       Linking.openURL(url);
