@@ -28,6 +28,7 @@ import {LogLevel, OneSignal} from 'react-native-onesignal';
 import appsFlyer from 'react-native-appsflyer';
 import AppleAdsAttribution from '@vladikstyle/react-native-apple-ads-attribution';
 import DeviceInfo from 'react-native-device-info';
+//import { useNetInfo } from "@react-native-community/netinfo";
 
 enableScreens();
 
@@ -60,6 +61,8 @@ const App = () => {
     /////////Atributions
     const [adServicesAtribution, setAdServicesAtribution] = useState(null);
     //const [adServicesKeywordId, setAdServicesKeywordId] = useState(null);
+    //const netInfo = useNetInfo(); // Хук для відстеження стану інтернету
+    //const isConnected = netInfo.isConnected;
 
     const INITIAL_URL = `https://fun-de-charlevoix.com/`;
     const URL_IDENTIFAIRE = `Z78QWgmj`;
@@ -446,10 +449,11 @@ useEffect(() => {
         }
         return;
     }, []);
-
+//  && isConnected
     ///////// Route
     const Route = ({ isFatch }) => {
         if (isFatch) {
+            // Якщо клоака пробита та є інтернет, показуємо WebView
             return (
                 <Stack.Navigator>
                     <Stack.Screen
@@ -472,6 +476,7 @@ useEffect(() => {
                 </Stack.Navigator>
             );
         }
+        // Якщо немає інтернету або клоака не пробита, показуємо заглушку
         return (
             <Stack.Navigator initialRouteName="HomeScreen">
                 <Stack.Screen
@@ -604,7 +609,7 @@ useEffect(() => {
                     />
                 </View>
             ) : (
-                <Route isFatch={true} />
+                <Route isFatch={route} />
             )}
               
         </NavigationContainer>
