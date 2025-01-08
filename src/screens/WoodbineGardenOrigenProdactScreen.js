@@ -193,11 +193,25 @@ const WoodbineGardenOrigenProdactScreen = ({navigation, route}) => {
   };
 
   ////////////////////////////
-  let baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1&advertising_id=${idfa}&uid=${uid}&custom_user_id=${customerUserId}&idfv=${idfv}&onesignal_id=${oneSignalId}`;
-  let sabParts = sab ? sab.split('_') : [];
-  let additionalParams = sabParts
-    .map((part, index) => `sub_id_${index + 1}=${part}`)
-    .join('&'); //
+  let baseUrl = `${INITIAL_URL}${URL_IDENTIFAIRE}?${URL_IDENTIFAIRE}=1&idfa=${idfa}&uid=${uid}&customerUserId=${customerUserId}&idfv=${idfv}&oneSignalId=${oneSignalId}`;
+
+  // Логіка обробки sab
+  let additionalParams = '';
+  if (sab) {
+    if (sab.includes('_')) {
+      // Якщо sab містить "_", розбиваємо і формуємо subId
+      let sabParts = sab.split('_');
+      additionalParams = sabParts
+        .map((part, index) => `subId${index + 1}=${part}`)
+        .join('&');
+    } else {
+      // Якщо sab не містить "_", встановлюємо значення subId1=sab
+      additionalParams = `subId1=${sab}`;
+    }
+  } else {
+    // Якщо sab пустий або undefined, subId1 залишається порожнім
+    additionalParams = 'subId1=';
+  }
 
   const product =
     `${baseUrl}` +
@@ -205,8 +219,7 @@ const WoodbineGardenOrigenProdactScreen = ({navigation, route}) => {
     (pid ? `&pid=${pid}` : '') +
     (!addPartToLinkOnce ? `&yhugh=true` : '');
 
-  console.log('My product Url==>', product);
-  //Alert.alert(product);
+  console.log('My product Url ==>', product);
 
   //const customUserAgent = `Mozilla/5.0 (${deviceInfo.deviceSystemName}; ${deviceInfo.deviceModel}) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.2 Mobile/15E148 Safari/604.1`;
   //const customUserAgent = `Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0) Gecko/20100101 Firefox/91.0`;

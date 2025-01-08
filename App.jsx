@@ -52,7 +52,7 @@ const App = () => {
     const [sab1, setSab1] = useState();
     const [pid, setPid] = useState();
     //console.log('appsUid==>', appsUid);
-    //console.log('sab1==>', sab1);
+    console.log('sab1==>', sab1);
     //console.log('pid==>', pid);
     const [customerUserId, setCustomerUserId] = useState(null);
     //console.log('customerUserID==>', customerUserId);
@@ -180,8 +180,8 @@ const App = () => {
             ({ keywordId } = adServicesAttributionData);
 
             setAdServicesAtribution(attribution);
-            //setAdServicesKeywordId(keywordId);
-            setSab1(attribution);
+            
+            setSab1(attribution ? 'asa' : '');
             // Вывод значений в консоль
             //Alert.alert(`Attribution: ${attribution}`);
             //console.log(`Attribution: ${attribution}` + `KeywordId:${keywordId}`);
@@ -193,20 +193,28 @@ const App = () => {
 
     ///////// OneSignall
     const requestPermission = () => {
-        return new Promise((resolve, reject) => {
-            try {
-                OneSignal.Notifications.requestPermission(true).then(res => {
-                    console.log('res', res);
-                    // зберігаємо в Стейт стан по відповіді на дозвіл на пуши і зберігаємо їх в АсСторідж
-                    setResponseToPushPermition(res);
-                });
-
-                resolve(); // Викликаємо resolve(), оскільки OneSignal.Notifications.requestPermission не повертає проміс
-            } catch (error) {
-                reject(error); // Викликаємо reject() у разі помилки
-            }
+    return new Promise((resolve, reject) => {
+      try {
+        OneSignal.Notifications.requestPermission(true).then(res => {
+          console.log('res', res);
+          // зберігаємо в Стейт стан по відповіді на дозвіл на пуши і зберігаємо їх в АсСторідж
+          setResponseToPushPermition(res);
+          OneSignal.User.getOnesignalId()
+            .then(deviceState => {
+              if (deviceState) {
+                setOneSignalId(deviceState); // Записуємо OneSignal ID
+              }
+            }).catch(error => {
+            console.error('Error fetching OneSignal ID:', error);
         });
-    };
+        });
+
+        resolve(); // Викликаємо resolve(), оскільки OneSignal.Notifications.requestPermission не повертає проміс
+      } catch (error) {
+        reject(error); // Викликаємо reject() у разі помилки
+      }
+    });
+  };
 
     // Виклик асинхронної функції requestPermission() з використанням async/await
     const requestOneSignallFoo = async () => {
@@ -224,22 +232,6 @@ const App = () => {
     // OneSignal ініціалізація
     OneSignal.initialize('f4cee9b5-9576-478a-98ac-f6308655db3e');
     //OneSignal.Debug.setLogLevel(OneSignal.LogLevel.Verbose);
-
-    ////////////////////OneSignall Id generation
-    useEffect(() => {
-        const fetchOneSignalId = async () => {
-            try {
-                const deviceState = await OneSignal.User.getOnesignalId();
-                if (deviceState) {
-                    setOneSignalId(deviceState); //  OneSignal ID
-                }
-            } catch (error) {
-                console.error('Error fetching OneSignal ID:', error);
-            }
-        };
-
-        fetchOneSignalId();
-    }, []);
 
     // event push_open_browser & push_open_webview
     const pushOpenWebViewOnce = useRef(false); // Стан, щоб уникнути дублювання
@@ -384,12 +376,7 @@ useEffect(() => {
                         setSab1(campaign);
                         setPid(pid);
                     } else if (res.data.af_status === 'Organic') {
-                        // Викликаємо fetchAdServicesAttributionData і отримуємо attribution
-                        const adServicesAttributionData =
-                            await fetchAdServicesAttributionData();
-                        const attribution = adServicesAttributionData?.attribution || 'asa'; // Якщо attribution немає, встановлюємо 'aca'
-                        setSab1(attribution); // Записуємо в стейт
-                        // setSab1(attribution ? 'asa' : ''); 
+                        await fetchAdServicesAttributionData();
                     }
                 } else {
                     //console.log('This is not first launch');
@@ -408,7 +395,7 @@ useEffect(() => {
                 //console.log('setIdfa(res.id);');
             } else {
                 //console.log('Ad tracking is limited');
-                setIdfa(false); //true
+                setIdfa('00000000-0000-0000-0000-000000000000'); //true
                 //setIdfa(null);
                 fetchIdfa();
                 //Alert.alert('idfa', idfa);
@@ -449,7 +436,7 @@ useEffect(() => {
         }
         return;
     }, []);
-//  && isConnected
+
     ///////// Route
     const Route = ({ isFatch }) => {
         if (isFatch) {
